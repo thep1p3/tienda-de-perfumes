@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mundo Aroma</title>
+<link rel="icon" type="image/x-icon" href="imagenes/perfume.ico">
+<link rel="stylesheet" href ="css/estilo1.css">
+
+</head>
+
+<script>
+let carrito = [];
+
+function agregarCarrito(nombre, precio) {
+    carrito.push({ nombre, precio });
+    actualizarCarrito();
+    abrirCarrito();
+}
+
+function actualizarCarrito() {
+    const lista = document.getElementById("cart-items");
+    const totalTexto = document.getElementById("total");
+    const contador = document.getElementById("cart-count");
+
+    lista.innerHTML = "";
+    let total = 0;
+
+    carrito.forEach((producto, index) => {
+        total += producto.precio;
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            ${producto.nombre} - $${producto.precio}
+            <button onclick="eliminarProducto(${index})" style="margin-left:10px; background:red; color:white; border:none; cursor:pointer;">❌</button>
+        `;
+
+        lista.appendChild(li);
+    });
+
+    totalTexto.textContent = "Total: $" + total + " CLP";
+
+    // 🔥 contador
+    contador.textContent = carrito.length;
+}
+
+function eliminarProducto(index) {
+    carrito.splice(index, 1);
+    actualizarCarrito();
+}
+
+function abrirCarrito() {
+    document.getElementById("cart-panel").classList.add("active");
+}
+
+function cerrarCarrito() {
+    document.getElementById("cart-panel").classList.remove("active");
+}
+</script>
+
+<body>
+
+<div class="ofertas-container">
+    <div class="ofertas-wrapper">
+        <div class="oferta-item">
+            <img src="imagenes/liquid brun.jpg" alt="Perfume 1">
+            <span>LIQUID BRUN - 20% OFF</span>
+        </div>
+        <div class="oferta-item">
+            <img src="imagenes/mochino toy boy.jpg" alt="Perfume 2">
+            <span>MOCHINO TOY BOY - HOT SALE</span>
+        </div>
+        <div class="oferta-item">
+            <img src="imagenes/versage eros energy.jpg" alt="Perfume 3">
+            <span>VERSAGE EROS ENERGY - ENVÍO GRATIS</span>
+        </div>
+
+        <div class="oferta-item">
+            <img src="imagenes/khamrah qahwa.jpg" alt="Perfume 1">
+            <span>KHAMRAH QAHWA - 20% OFF</span>
+        </div>
+        <div class="oferta-item">
+            <img src="imagenes/sauvage dior.jpg" alt="Perfume 2">
+            <span>SAUVAGE DIOR - HOT SALE</span>
+        </div>
+        <div class="oferta-item">
+            <img src="imagenes/asad bourbon.jpg" alt="Perfume 3">
+            <span>ASAD BOURBON - ENVÍO GRATIS</span>
+        </div>
+    </div>
+</div>
+    
+<header>
+    <div class="brand">
+        <div class="logo">P</div>
+        <div>
+            <div style="font-weight:900;">Mundo Aroma</div>
+            <div style="font-size:0.9rem;color:var(--muted)">Selección de fragancias</div>
+        </div>
+    </div>
+    <nav>
+        <a href="#">Novedades</a>
+        <a href="#">Categorías</a>
+        <a href="#">Contacto</a>
+
+         <span id="cart-icon" onclick="abrirCarrito()" style="cursor:pointer;">
+  🛒 <span id="cart-count">0</span>
+</span>
+
+    </nav>
+</header>
+
+<div id="cart-panel" class="cart-panel">
+  <h2>🛒 Carrito</h2>
+  <ul id="cart-items"></ul>
+  <p id="total">Total: $0 CLP</p>
+  <button onclick="cerrarCarrito()">Cerrar</button>
+</div>
+
+<main>
+<h1>Perfumes destacados</h1>
+
+<section class="grid">
+
+<article class="card">
+<figure>
+<img src="imagenes/chanel-No-5-Parfum.jpg">
+</figure>
+<div>Chanel No.5</div>
+<div class="price">$139.990 CLP</div>
+<button class="buy" onclick="agregarCarrito('Chanel No.5', 139990)">Comprar</button>
+</article>
+
+<article class="card">
+<figure>
+<img src="imagenes/212 vip.jpg">
+</figure>
+<div>212 vip</div>
+<div class="price">$86.990 CLP</div>
+<button class="buy" onclick="agregarCarrito('212 vip', 86990)">Comprar</button>
+</article>
+
+<article class="card">
+<figure>
+<img src="imagenes/Vulcan Feu.jpg">
+</figure>
+<div>Vulcan Feu</div>
+<div class="price">$34.990 CLP</div>
+<button class="buy" onclick="agregarCarrito('Vulcan Feu', 34990)">Comprar</button>
+</article>
+
+<article class="card">
+<figure>
+<img src="imagenes/mandarin sky.jpg">
+</figure>
+<div>mandarin sky</div>
+<div class="price">$34.990 CLP</div>
+<button class="buy" onclick="agregarCarrito('mandarin sky', 34990)">Comprar</button>
+</article>
+
+<article class="card">
+<figure>
+<img src="imagenes/valentino born in roma.jpg">
+</figure>
+<div>valentino born in roma</div>
+<div class="price">$124.990 CLP</div>
+<button class="buy" onclick="agregarCarrito('valentino born in roma', 124990)">Comprar</button>
+</article>
+
+<article class="card">
+<figure>
+<img src="imagenes/afnan 9 pm.jpg">
+</figure>
+<div>afnan 9 pm</div>
+<div class="price">$26.990 CLP</div>
+<button class="buy" onclick="agregarCarrito('afnan 9 pm', 26990)">Comprar</button>
+</article>
+
+</section>
+</main>
+
+<footer class="footer">
+  <div class="footer-content">
+    <p class="footer-text">
+      🚚 Envíos a todo Chile
+    </p>
+    <p class="footer-text">
+      💰 Precios en pesos chilenos (CLP)
+    </p>
+  </div>
+</footer>
+
+
+
+</body>
+</html>
