@@ -1,4 +1,129 @@
 <!doctype html>
+<script>
+(function(){
+    document.addEventListener('DOMContentLoaded', function(){
+        // Add CSS
+        const css = `
+            /* Login button inside nav */
+            #login-btn {
+                margin-right: 1rem;
+                background: transparent;
+                border: 1px solid var(--muted, #ccc);
+                padding: 0.4rem 0.7rem;
+                border-radius: 6px;
+                cursor: pointer;
+                color: inherit;
+                font-weight:600;
+            }
+            #login-btn:hover { background: rgba(0,0,0,0.04); }
+
+            /* Modal */
+            #login-modal {
+                position: fixed;
+                inset: 0;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            }
+            #login-modal.active { display: flex; }
+            #login-modal .overlay {
+                position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+            }
+            #login-modal .panel {
+                position: relative;
+                background: #fff;
+                padding: 1.1rem;
+                border-radius: 8px;
+                width: 320px;
+                max-width: calc(100% - 32px);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            }
+            #login-modal h3 { margin: 0 0 0.6rem 0; font-size: 1.05rem; }
+            #login-modal input {
+                width: 100%; padding: 0.5rem; margin-bottom: 0.6rem; border:1px solid #ddd; border-radius:4px;
+            }
+            #login-modal .actions { display:flex; gap:0.5rem; justify-content:flex-end; }
+            #login-modal button.primary {
+                background: #0b63d6; color:#fff; border:none; padding:0.45rem 0.7rem; border-radius:6px; cursor:pointer;
+            }
+            #login-modal button.ghost { background: transparent; border:1px solid #ccc; padding:0.45rem 0.6rem; border-radius:6px; cursor:pointer; }
+            #login-username { font-weight:700; margin-left:0.5rem; }
+        `;
+        const style = document.createElement('style');
+        style.textContent = css;
+        document.head.appendChild(style);
+
+        // Create login button and place it left of "Novedades"
+        const nav = document.querySelector('header nav') || document.querySelector('nav');
+        if (!nav) return;
+
+        const loginBtn = document.createElement('button');
+        loginBtn.id = 'login-btn';
+        loginBtn.type = 'button';
+        loginBtn.textContent = 'Iniciar sesión';
+        nav.insertBefore(loginBtn, nav.querySelector('a'));
+
+        // Modal markup
+        const modal = document.createElement('div');
+        modal.id = 'login-modal';
+        modal.innerHTML = `
+            <div class="overlay" data-close></div>
+            <div class="panel" role="dialog" aria-modal="true" aria-labelledby="login-title">
+                <h3 id="login-title">Iniciar sesión</h3>
+                <form id="login-form">
+                    <input id="email" type="email" placeholder="correo@ejemplo.com" required />
+                    <input id="password" type="password" placeholder="Contraseña" required />
+                    <div class="actions">
+                        <button type="button" class="ghost" data-close>Cancelar</button>
+                        <button type="submit" class="primary">Entrar</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Handlers
+        function open() { modal.classList.add('active'); modal.querySelector('#email').focus(); }
+        function close() { modal.classList.remove('active'); }
+        loginBtn.addEventListener('click', open);
+        modal.addEventListener('click', (e) => { if (e.target.matches('[data-close]')) close(); });
+
+        // Simple mock auth: show username on success and allow logout
+        const form = modal.querySelector('#login-form');
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            const email = form.email.value.trim();
+            if (!email) return;
+            // Display logged state
+            const username = email.split('@')[0];
+            const span = document.createElement('span');
+            span.id = 'login-username';
+            span.textContent = username;
+            const logout = document.createElement('button');
+            logout.type = 'button';
+            logout.className = 'ghost';
+            logout.textContent = 'Salir';
+            logout.style.marginLeft = '0.5rem';
+            logout.addEventListener('click', function(){
+                // restore button
+                if (span.parentNode) span.parentNode.removeChild(span);
+                if (logout.parentNode) logout.parentNode.removeChild(logout);
+                loginBtn.style.display = '';
+                loginBtn.textContent = 'Iniciar sesión';
+            });
+
+            // Replace login button with username + logout
+            loginBtn.textContent = '';
+            loginBtn.style.display = 'inline-flex';
+            loginBtn.appendChild(span);
+            loginBtn.parentNode.insertBefore(logout, loginBtn.nextSibling);
+            close();
+            form.reset();
+        });
+    });
+})();
+</script>
 <html lang="es">
 <head>
 <meta charset="utf-8" />
