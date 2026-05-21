@@ -1,322 +1,254 @@
 <!doctype html>
-<script>
-(function(){
-    document.addEventListener('DOMContentLoaded', function(){
-        // Add CSS
-        const css = `
-            /* Login button inside nav */
-            #login-btn {
-                margin-right: 1rem;
-                background: transparent;
-                border: 1px solid var(--muted, #ccc);
-                padding: 0.4rem 0.7rem;
-                border-radius: 6px;
-                cursor: pointer;
-                color: inherit;
-                font-weight:600;
-            }
-            #login-btn:hover { background: rgba(0,0,0,0.04); }
-
-            /* Modal */
-            #login-modal {
-                position: fixed;
-                inset: 0;
-                display: none;
-                align-items: center;
-                justify-content: center;
-                z-index: 9999;
-            }
-            #login-modal.active { display: flex; }
-            #login-modal .overlay {
-                position: absolute; inset: 0; background: rgba(0,0,0,0.45);
-            }
-            #login-modal .panel {
-                position: relative;
-                background: #fff;
-                padding: 1.1rem;
-                border-radius: 8px;
-                width: 320px;
-                max-width: calc(100% - 32px);
-                box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            }
-            #login-modal h3 { margin: 0 0 0.6rem 0; font-size: 1.05rem; }
-            #login-modal input {
-                width: 100%; padding: 0.5rem; margin-bottom: 0.6rem; border:1px solid #ddd; border-radius:4px;
-            }
-            #login-modal .actions { display:flex; gap:0.5rem; justify-content:flex-end; }
-            #login-modal button.primary {
-                background: #0b63d6; color:#fff; border:none; padding:0.45rem 0.7rem; border-radius:6px; cursor:pointer;
-            }
-            #login-modal button.ghost { background: transparent; border:1px solid #ccc; padding:0.45rem 0.6rem; border-radius:6px; cursor:pointer; }
-            #login-username { font-weight:700; margin-left:0.5rem; }
-        `;
-        const style = document.createElement('style');
-        style.textContent = css;
-        document.head.appendChild(style);
-
-        // Create login button and place it left of "Novedades"
-        const nav = document.querySelector('header nav') || document.querySelector('nav');
-        if (!nav) return;
-
-        const loginBtn = document.createElement('button');
-        loginBtn.id = 'login-btn';
-        loginBtn.type = 'button';
-        loginBtn.textContent = 'Iniciar sesión';
-        nav.insertBefore(loginBtn, nav.querySelector('a'));
-
-        // Modal markup
-        const modal = document.createElement('div');
-        modal.id = 'login-modal';
-        modal.innerHTML = `
-            <div class="overlay" data-close></div>
-            <div class="panel" role="dialog" aria-modal="true" aria-labelledby="login-title">
-                <h3 id="login-title">Iniciar sesión</h3>
-                <form id="login-form">
-                    <input id="email" type="email" placeholder="correo@ejemplo.com" required />
-                    <input id="password" type="password" placeholder="Contraseña" required />
-                    <div class="actions">
-                        <button type="button" class="ghost" data-close>Cancelar</button>
-                        <button type="submit" class="primary">Entrar</button>
-                    </div>
-                </form>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        // Handlers
-        function open() { modal.classList.add('active'); modal.querySelector('#email').focus(); }
-        function close() { modal.classList.remove('active'); }
-        loginBtn.addEventListener('click', open);
-        modal.addEventListener('click', (e) => { if (e.target.matches('[data-close]')) close(); });
-
-        // Simple mock auth: show username on success and allow logout
-        const form = modal.querySelector('#login-form');
-        form.addEventListener('submit', function(e){
-            e.preventDefault();
-            const email = form.email.value.trim();
-            if (!email) return;
-            // Display logged state
-            const username = email.split('@')[0];
-            const span = document.createElement('span');
-            span.id = 'login-username';
-            span.textContent = username;
-            const logout = document.createElement('button');
-            logout.type = 'button';
-            logout.className = 'ghost';
-            logout.textContent = 'Salir';
-            logout.style.marginLeft = '0.5rem';
-            logout.addEventListener('click', function(){
-                // restore button
-                if (span.parentNode) span.parentNode.removeChild(span);
-                if (logout.parentNode) logout.parentNode.removeChild(logout);
-                loginBtn.style.display = '';
-                loginBtn.textContent = 'Iniciar sesión';
-            });
-
-            // Replace login button with username + logout
-            loginBtn.textContent = '';
-            loginBtn.style.display = 'inline-flex';
-            loginBtn.appendChild(span);
-            loginBtn.parentNode.insertBefore(logout, loginBtn.nextSibling);
-            close();
-            form.reset();
-        });
-    });
-})();
-</script>
 <html lang="es">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Mundo Aroma</title>
 <link rel="icon" type="image/x-icon" href="imagenes/perfume.ico">
-<link rel="stylesheet" href ="css/estilo1.css">
+<link rel="stylesheet" href="css/estilo1.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
 
 </head>
 
-<script>
-let carrito = [];
-
-function agregarCarrito(nombre, precio) {
-    carrito.push({ nombre, precio });
-    actualizarCarrito();
-    abrirCarrito();
-}
-
-function actualizarCarrito() {
-    const lista = document.getElementById("cart-items");
-    const totalTexto = document.getElementById("total");
-    const contador = document.getElementById("cart-count");
-
-    lista.innerHTML = "";
-    let total = 0;
-
-    carrito.forEach((producto, index) => {
-        total += producto.precio;
-
-        const li = document.createElement("li");
-
-        li.innerHTML = `
-            ${producto.nombre} - $${producto.precio}
-            <button onclick="eliminarProducto(${index})" style="margin-left:10px; background:red; color:white; border:none; cursor:pointer;">❌</button>
-        `;
-
-        lista.appendChild(li);
-    });
-
-    totalTexto.textContent = "Total: $" + total + " CLP";
-
-    // 🔥 contador
-    contador.textContent = carrito.length;
-}
-
-function eliminarProducto(index) {
-    carrito.splice(index, 1);
-    actualizarCarrito();
-}
-
-function abrirCarrito() {
-    document.getElementById("cart-panel").classList.add("active");
-}
-
-function cerrarCarrito() {
-    document.getElementById("cart-panel").classList.remove("active");
-}
-</script>
-
 <body>
 
+<!-- ===== BANNER DE OFERTAS ===== -->
 <div class="ofertas-container">
-    <div class="ofertas-wrapper">
-        <div class="oferta-item">
-            <img src="imagenes/liquid brun.jpg" alt="Perfume 1">
-            <span>LIQUID BRUN - 20% OFF</span>
-        </div>
-        <div class="oferta-item">
-            <img src="imagenes/mochino toy boy.jpg" alt="Perfume 2">
-            <span>MOCHINO TOY BOY - HOT SALE</span>
-        </div>
-        <div class="oferta-item">
-            <img src="imagenes/versage eros energy.jpg" alt="Perfume 3">
-            <span>VERSAGE EROS ENERGY - ENVÍO GRATIS</span>
-        </div>
-
-        <div class="oferta-item">
-            <img src="imagenes/khamrah qahwa.jpg" alt="Perfume 1">
-            <span>KHAMRAH QAHWA - 20% OFF</span>
-        </div>
-        <div class="oferta-item">
-            <img src="imagenes/sauvage dior.jpg" alt="Perfume 2">
-            <span>SAUVAGE DIOR - HOT SALE</span>
-        </div>
-        <div class="oferta-item">
-            <img src="imagenes/asad bourbon.jpg" alt="Perfume 3">
-            <span>ASAD BOURBON - ENVÍO GRATIS</span>
-        </div>
-    </div>
+  <div class="ofertas-wrapper">
+    <div class="oferta-item"><img src="imagenes/liquid brun.jpg" alt=""><span>LIQUID BRUN - 20% OFF</span></div>
+    <div class="oferta-item"><img src="imagenes/mochino toy boy.jpg" alt=""><span>MOCHINO TOY BOY - HOT SALE</span></div>
+    <div class="oferta-item"><img src="imagenes/versage eros energy.jpg" alt=""><span>VERSACE EROS ENERGY - ENVIO GRATIS</span></div>
+    <div class="oferta-item"><img src="imagenes/khamrah qahwa.jpg" alt=""><span>KHAMRAH QAHWA - 20% OFF</span></div>
+    <div class="oferta-item"><img src="imagenes/sauvage dior.jpg" alt=""><span>SAUVAGE DIOR - HOT SALE</span></div>
+    <div class="oferta-item"><img src="imagenes/asad bourbon.jpg" alt=""><span>ASAD BOURBON - ENVIO GRATIS</span></div>
+    <div class="oferta-item"><img src="imagenes/liquid brun.jpg" alt=""><span>LIQUID BRUN - 20% OFF</span></div>
+    <div class="oferta-item"><img src="imagenes/mochino toy boy.jpg" alt=""><span>MOCHINO TOY BOY - HOT SALE</span></div>
+    <div class="oferta-item"><img src="imagenes/versage eros energy.jpg" alt=""><span>VERSACE EROS ENERGY - ENVIO GRATIS</span></div>
+    <div class="oferta-item"><img src="imagenes/khamrah qahwa.jpg" alt=""><span>KHAMRAH QAHWA - 20% OFF</span></div>
+    <div class="oferta-item"><img src="imagenes/sauvage dior.jpg" alt=""><span>SAUVAGE DIOR - HOT SALE</span></div>
+    <div class="oferta-item"><img src="imagenes/asad bourbon.jpg" alt=""><span>ASAD BOURBON - ENVIO GRATIS</span></div>
+  </div>
 </div>
-    
+
+<!-- ===== HEADER ===== -->
 <header>
-    <div class="brand">
-        <div class="logo">P</div>
-        <div>
-            <div style="font-weight:900;">Mundo Aroma</div>
-            <div style="font-size:0.9rem;color:var(--muted)">Selección de fragancias</div>
-        </div>
+  <div class="brand">
+    <div class="logo">P</div>
+    <div>
+      <div class="brand-name">Mundo Aroma</div>
+      <div class="brand-sub">Seleccion de fragancias</div>
     </div>
-    <nav>
-        <a href="#">Novedades</a>
-        <a href="#">Categorías</a>
-        <a href="#">Contacto</a>
+  </div>
 
-         <span id="cart-icon" onclick="abrirCarrito()" style="cursor:pointer;">
-  🛒 <span id="cart-count">0</span>
-</span>
+  <nav>
+    <a href="#productos">Novedades</a>
+    <a href="#formularios">Categorias</a>
+    <a href="#formularios">Contacto</a>
 
-    </nav>
+    <span id="usuario-box">
+      <button class="btn-nav" onclick="abrirLogin()">Iniciar sesion</button>
+      <button class="btn-nav-primary" onclick="cambiarFormTab('inscripcion'); document.getElementById('formularios').scrollIntoView({behavior:'smooth'})">Registrarse</button>
+    </span>
+
+    <span id="cart-icon" onclick="abrirCarrito()">
+      &#128722; <span id="cart-count">0</span>
+    </span>
+  </nav>
 </header>
 
+<!-- ===== PANEL CARRITO ===== -->
 <div id="cart-panel" class="cart-panel">
-  <h2>🛒 Carrito</h2>
+  <h2>&#128722; Carrito</h2>
   <ul id="cart-items"></ul>
   <p id="total">Total: $0 CLP</p>
-  <button onclick="cerrarCarrito()">Cerrar</button>
+  <button class="cart-close-btn" onclick="cerrarCarrito()">Cerrar carrito</button>
 </div>
 
-<main>
-<h1>Perfumes destacados</h1>
+<!-- ===== MODAL LOGIN ===== -->
+<div id="modal-login" class="modal">
+  <div class="modal-box">
+    <h2>Iniciar sesion</h2>
 
-<section class="grid">
+    <div>
+      <label for="login-email">Correo electronico</label>
+      <input type="email" id="login-email" placeholder="tu@correo.com" autocomplete="email">
+      <div class="modal-error" id="err-login-email"></div>
+    </div>
 
-<article class="card">
-<figure>
-<img src="imagenes/chanel-No-5-Parfum.jpg">
-</figure>
-<div>Chanel No.5</div>
-<div class="price">$139.990 CLP</div>
-<button class="buy" onclick="agregarCarrito('Chanel No.5', 139990)">Comprar</button>
-</article>
+    <div>
+      <label for="login-password">Contrasena</label>
+      <input type="password" id="login-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password">
+      <div class="modal-error" id="err-login-password"></div>
+    </div>
 
-<article class="card">
-<figure>
-<img src="imagenes/212 vip.jpg">
-</figure>
-<div>212 vip</div>
-<div class="price">$86.990 CLP</div>
-<button class="buy" onclick="agregarCarrito('212 vip', 86990)">Comprar</button>
-</article>
+    <button class="modal-btn-primary" onclick="iniciarSesion()">Entrar</button>
+    <button class="modal-btn-secondary" onclick="cerrarLogin()">Cancelar</button>
+  </div>
+</div>
 
-<article class="card">
-<figure>
-<img src="imagenes/Vulcan Feu.jpg">
-</figure>
-<div>Vulcan Feu</div>
-<div class="price">$34.990 CLP</div>
-<button class="buy" onclick="agregarCarrito('Vulcan Feu', 34990)">Comprar</button>
-</article>
+<!-- ===== CARRUSEL (Criterio 2.1.1) ===== -->
+<section class="carrusel-section" aria-label="Carrusel de fragancias destacadas">
+  <h2 class="carrusel-titulo">Fragancias Destacadas</h2>
 
-<article class="card">
-<figure>
-<img src="imagenes/mandarin sky.jpg">
-</figure>
-<div>mandarin sky</div>
-<div class="price">$34.990 CLP</div>
-<button class="buy" onclick="agregarCarrito('mandarin sky', 34990)">Comprar</button>
-</article>
+  <div class="carrusel-wrapper"
+       onmouseenter="detenerAutoAvance()"
+       onmouseleave="iniciarAutoAvance()">
 
-<article class="card">
-<figure>
-<img src="imagenes/valentino born in roma.jpg">
-</figure>
-<div>valentino born in roma</div>
-<div class="price">$124.990 CLP</div>
-<button class="buy" onclick="agregarCarrito('valentino born in roma', 124990)">Comprar</button>
-</article>
+    <div class="carrusel-track" id="carrusel-track"></div>
 
-<article class="card">
-<figure>
-<img src="imagenes/afnan 9 pm.jpg">
-</figure>
-<div>afnan 9 pm</div>
-<div class="price">$26.990 CLP</div>
-<button class="buy" onclick="agregarCarrito('afnan 9 pm', 26990)">Comprar</button>
-</article>
+    <button class="carrusel-btn prev" onclick="cambiarImagen(-1)" aria-label="Imagen anterior">&#8592;</button>
+    <button class="carrusel-btn next" onclick="cambiarImagen(1)"  aria-label="Imagen siguiente">&#8594;</button>
+  </div>
 
+  <div class="carrusel-dots" id="carrusel-dots"></div>
 </section>
+
+<!-- ===== MAIN: PRODUCTOS ===== -->
+<main id="productos">
+  <h1>Perfumes destacados</h1>
+
+  <section class="grid">
+
+    <article class="card">
+      <figure><img src="imagenes/chanel-No-5-Parfum.jpg" alt="Chanel No.5"></figure>
+      <div>Chanel No.5</div>
+      <div class="price">$139.990 CLP</div>
+      <button class="buy" onclick="agregarCarrito('Chanel No.5', 139990)">Comprar</button>
+    </article>
+
+    <article class="card">
+      <figure><img src="imagenes/212 vip.jpg" alt="212 VIP"></figure>
+      <div>212 VIP</div>
+      <div class="price">$86.990 CLP</div>
+      <button class="buy" onclick="agregarCarrito('212 VIP', 86990)">Comprar</button>
+    </article>
+
+    <article class="card">
+      <figure><img src="imagenes/Vulcan Feu.jpg" alt="Vulcan Feu"></figure>
+      <div>Vulcan Feu</div>
+      <div class="price">$34.990 CLP</div>
+      <button class="buy" onclick="agregarCarrito('Vulcan Feu', 34990)">Comprar</button>
+    </article>
+
+    <article class="card">
+      <figure><img src="imagenes/mandarin sky.jpg" alt="Mandarin Sky"></figure>
+      <div>Mandarin Sky</div>
+      <div class="price">$34.990 CLP</div>
+      <button class="buy" onclick="agregarCarrito('Mandarin Sky', 34990)">Comprar</button>
+    </article>
+
+    <article class="card">
+      <figure><img src="imagenes/valentino born in roma.jpg" alt="Valentino Born in Roma"></figure>
+      <div>Valentino Born in Roma</div>
+      <div class="price">$124.990 CLP</div>
+      <button class="buy" onclick="agregarCarrito('Valentino Born in Roma', 124990)">Comprar</button>
+    </article>
+
+    <article class="card">
+      <figure><img src="imagenes/afnan 9 pm.jpg" alt="Afnan 9 PM"></figure>
+      <div>Afnan 9 PM</div>
+      <div class="price">$26.990 CLP</div>
+      <button class="buy" onclick="agregarCarrito('Afnan 9 PM', 26990)">Comprar</button>
+    </article>
+
+  </section>
 </main>
 
+<!-- ===== SECCION FORMULARIOS (Criterio 2.1.2) ===== -->
+<section class="forms-section" id="formularios">
+  <h2>Cuenta y Contacto</h2>
+
+  <div class="forms-tabs">
+    <button class="form-tab active" data-tab="inscripcion" onclick="cambiarFormTab('inscripcion')">Inscripcion</button>
+    <button class="form-tab"       data-tab="login"        onclick="cambiarFormTab('login')">Login</button>
+    <button class="form-tab"       data-tab="contacto"     onclick="cambiarFormTab('contacto')">Contacto</button>
+  </div>
+
+  <!-- FORMULARIO DE INSCRIPCION -->
+  <div class="form-panel active" id="panel-inscripcion">
+    <h3>Crear cuenta</h3>
+
+    <div class="form-group">
+      <label for="reg-nombre">Nombre completo</label>
+      <input type="text" id="reg-nombre" placeholder="Juan Perez" autocomplete="name">
+      <div class="form-error" id="err-reg-nombre"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="reg-email">Correo electronico</label>
+      <input type="email" id="reg-email" placeholder="tu@correo.com" autocomplete="email">
+      <div class="form-error" id="err-reg-email"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="reg-password">Contrasena</label>
+      <input type="password" id="reg-password" placeholder="Minimo 6 caracteres" autocomplete="new-password">
+      <div class="form-error" id="err-reg-password"></div>
+    </div>
+
+    <button class="btn-form" onclick="procesarInscripcion()">Crear cuenta</button>
+    <div class="form-success" id="msg-inscripcion"></div>
+  </div>
+
+  <!-- FORMULARIO DE LOGIN (TAB) -->
+  <div class="form-panel" id="panel-login">
+    <h3>Iniciar sesion</h3>
+
+    <div class="form-group">
+      <label for="tab-login-email">Correo electronico</label>
+      <input type="email" id="tab-login-email" placeholder="tu@correo.com" autocomplete="email">
+      <div class="form-error" id="err-tab-login-email"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="tab-login-password">Contrasena</label>
+      <input type="password" id="tab-login-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password">
+      <div class="form-error" id="err-tab-login-password"></div>
+    </div>
+
+    <button class="btn-form" onclick="procesarLoginTab()">Ingresar</button>
+    <div class="form-success" id="msg-login-tab"></div>
+  </div>
+
+  <!-- FORMULARIO DE CONTACTO -->
+  <div class="form-panel" id="panel-contacto">
+    <h3>Envianos un mensaje</h3>
+
+    <div class="form-group">
+      <label for="contacto-nombre">Nombre</label>
+      <input type="text" id="contacto-nombre" placeholder="Tu nombre" autocomplete="name">
+      <div class="form-error" id="err-contacto-nombre"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="contacto-email">Correo electronico</label>
+      <input type="email" id="contacto-email" placeholder="tu@correo.com" autocomplete="email">
+      <div class="form-error" id="err-contacto-email"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="contacto-mensaje">Mensaje</label>
+      <textarea id="contacto-mensaje" placeholder="Escribe tu consulta..."></textarea>
+      <div class="form-error" id="err-contacto-mensaje"></div>
+    </div>
+
+    <button class="btn-form" onclick="procesarContacto()">Enviar mensaje</button>
+    <div class="form-success" id="msg-contacto"></div>
+  </div>
+
+</section>
+
+<!-- ===== FOOTER ===== -->
 <footer class="footer">
   <div class="footer-content">
-    <p class="footer-text">
-      🚚 Envíos a todo Chile
-    </p>
-    <p class="footer-text">
-      💰 Precios en pesos chilenos (CLP)
-    </p>
+    <p class="footer-text">&#128666; Envios a todo Chile</p>
+    <p class="footer-text">&#128176; Precios en pesos chilenos (CLP)</p>
   </div>
 </footer>
 
 
+<script src="js/app.js"></script>
 
 </body>
 </html>
